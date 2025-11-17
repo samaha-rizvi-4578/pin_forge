@@ -1,0 +1,56 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+*.pdb
+
+# Environment
+env/
+venv/
+ENV/
+.env
+
+# Django
+*.sqlite3
+db.sqlite3
+/staticfiles/
+media/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Node / React (if frontend is inside the repo)
+node_modules/
+build/
+dist/
+
+# Logs
+*.log
+*.pot
+*.py[cod]
+*.swp
+
+# PyCharm
+.idea/
+
+# Coverage / Test Reports
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+*.tmp
+
+# Secrets / sensitive files
+.env
