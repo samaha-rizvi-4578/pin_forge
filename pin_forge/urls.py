@@ -1,7 +1,12 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import permissions
+from rest_framework.routers import DefaultRouter
 from rest_framework.schemas import get_schema_view
+path('api/', include('pin_forge.pin_automate.urls')),
+from pin_forge.pin_automate.views import (
+    UserViewSet, GroupViewSet, StoreViewSet, ProductViewSet, LoginView
+)
 
 # include_docs_urls requires `coreapi` to be installed; create docs view
 # defensively so missing optional dependencies don't break management commands.
@@ -25,12 +30,21 @@ if include_docs_urls is not None:
     except Exception:
         docs_view = None
 
+router = DefaultRouter()
+router.register(r'users', UserViewSet)
+router.register(r'groups', GroupViewSet)
+router.register(r'stores', StoreViewSet)
+router.register(r'products', ProductViewSet)
+
 urlpatterns = [
     # Django admin
     path('admin/', admin.site.urls),
 
-    # Pin Automate App API
-    path('api/', include('pin_forge.pin_automate.urls')),
+    # Login endpoint
+    path('api/login/', LoginView.as_view(), name='login'),
+
+    # Other endpoints
+    path('api/', include(router.urls)),
 
     # Optional DRF Auth (login/logout for browsable API)
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
