@@ -9,7 +9,7 @@ from .serializers import (
     UserSerializer,
     StoreSerializer,
     ProductWriteSerializer,
-    ProductReadSerializer
+    ProductSerializer
 )
 from .services.product_sync_service import ProductSyncService
 from .services.ai_service import AIContentService
@@ -71,7 +71,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         """
         if self.request.method in ["POST", "PUT", "PATCH"]:
             return ProductWriteSerializer
-        return ProductReadSerializer
+        return ProductSerializer
 
 
 # ----------------------------------------

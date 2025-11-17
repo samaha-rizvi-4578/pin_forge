@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # Local apps
-    'pin_automate',
+    'pin_forge.pin_automate',
 
     
 ]
