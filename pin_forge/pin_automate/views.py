@@ -89,7 +89,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         try:
             if store_url:
                 product_data = self._fetch_products_from_url(store_url)
-                return Response({"message": "Products fetched", "products": product_data})
+                # extract fields for store
+                name = product_data.get("title", "Untitled Store")
+                url = store_url
+                store, created = Store.objects.get_or_create(
+                    user = request.user,
+                    url = url,
+                    name = name
+                )
+                message = "Store fetched and created" if created else "Store already exists"
+                return Response({"message": message, "products": product_data})
 
             store = Store.objects.get(id=store_id)
             ProductSyncService.sync(store)
@@ -101,7 +110,6 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"error": str(e)}, status=400)
-
     # ------------------------------
     # SCRAPE PRODUCT JSON FROM URL
     # ------------------------------
@@ -151,25 +159,42 @@ class ProductViewSet(viewsets.ModelViewSet):
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
+            
+            first_key = list(data.keys())[0]
+
+            b_value = data[first_key].get('b', {})
+
+                # Ensure b_value is a dict with 'data'
+            if isinstance(b_value, dict) and 'data' in b_value:
+                data_list = b_value['data']
+                if isinstance(data_list, list) and len(data_list) > 0:
+                    first_product = data_list[0]
+                    title = first_product.get("title", "Untitled")
+                else:
+                    title = "Untitled"
+            else:
+                title = "Untitled"
             productKey = "2712286816" # this is from where our products are starting
 
             if productKey in data:
                 try:
-                    product_list = data[productKey]['b']['data']
-                    return product_list
+                    product_list = data[productKey]['b'].get('data', [])
+                    if not isinstance(product_list, list):
+                        product_list = [product_list]
+                    return product_list, title
                 except KeyError as e:
                     print(f"eror accessing nested product data: {e}")
                     return e
             else:
                  print(f"Key '{productKey}' not found in the JSON file.")
-                 return None
+                 return None, title
         except FileNotFoundError:
             print("Error: products.json not found.")
-            return None
+            return None, "Untitled"
 
         except json.JSONDecodeError:
             print("Error: JSON file is invalid.")
-            return None
+            return None, "Untitled"
 
 
     # -----------------------------------------------------
@@ -177,7 +202,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     # -----------------------------------------------------
     @action(detail=False, methods=["get", "post"], url_path="storeProductfromJson")
     def storeProductfromJson(self, request):
-        data = self.read_products_json()
+        data, title = self.read_products_json()
 
         if request.method == "GET":
             return Response({"status": "success", "products": data})
@@ -185,24 +210,34 @@ class ProductViewSet(viewsets.ModelViewSet):
         if request.method == "POST":
             if not data:
                 return Response({"error": "No data found"}, status=400)
-
-            # If product_data is a dict, convert to list
-            if isinstance(data, dict):
-                data = [data]
-
+            try:
+                store = Store.objects.get(
+                    # name = title,
+                    name = "Print Hive",
+                    user = request.user
+                )
+            except Store.DoesNotExist:
+                return Response({"error": f"Store {title} not found for this user"})
+            created_count = 0
             for product in data:
+                # craete product
                 p = Product.objects.create(
                     title=product.get("title", "Untitled"),
                     description=product.get("description", ""),
-                    price=product.get("price", 0)
+                    store = store
                 )
 
-                for variant in product.get("variants", []):
+                variants = product.get("variants") or product.get("options") or []
+                for variant in variants:
+                    color=variant.get("color", ""),
+                    size=variant.get("size", ""),
+                    stock=variant.get("stock", 0),
                     Variant.objects.create(
-                        product=p,
-                        color=variant.get("color"),
-                        size=variant.get("size"),
-                        stock=variant.get("stock", 0)
-                    )
+                    product=p,
+                    name = f"{color}-{size}".strip(),
+                    attributes = stock,
+                    price=product.get("retail_price", 0)
+                )
+                created_count += 1
 
-            return Response({"message": "Products imported successfully"})
+            return Response({"message": f"{created_count} products imported successfully"})
