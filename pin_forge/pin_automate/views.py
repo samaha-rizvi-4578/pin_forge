@@ -224,11 +224,12 @@ class ProductViewSet(viewsets.ModelViewSet):
                 # craete product
                 title=product.get("title", "Untitled")
                 description=product.get("description", "")
-                url = product.get("url", "")
+                url = store.url + product.get("path", "")
                 main_image=product.get("image", "")
                 print('/n',created_count, title, description)
                 p = Product.objects.create(
                     title=title,
+                    product_id = product.get("id"),
                     description=description,
                     store = store,
                     url = url,
