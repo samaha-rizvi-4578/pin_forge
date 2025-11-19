@@ -120,8 +120,9 @@ class ProductViewSet(viewsets.ModelViewSet):
 
             tree = html.fromstring(page.content.decode("utf8"))
             all_scripts = tree.xpath('//script/text()')
-
+            # print(all_scripts)
             for script in all_scripts:
+                # print(script)
                 if 'product' in script.lower() and '{' in script:
                     fi = script.find('{')
                     li = script.rfind('};')
@@ -221,22 +222,38 @@ class ProductViewSet(viewsets.ModelViewSet):
             created_count = 0
             for product in data:
                 # craete product
+                title=product.get("title", "Untitled")
+                description=product.get("description", "")
+                url = product.get("url", "")
+                main_image=product.get("image", "")
+                print('/n',created_count, title, description)
                 p = Product.objects.create(
-                    title=product.get("title", "Untitled"),
-                    description=product.get("description", ""),
-                    store = store
+                    title=title,
+                    description=description,
+                    store = store,
+                    url = url,
+                    main_image = main_image,
+                    status = "new"
                 )
 
                 variants = product.get("variants") or product.get("options") or []
                 for variant in variants:
-                    color=variant.get("color", ""),
-                    size=variant.get("size", ""),
-                    stock=variant.get("stock", 0),
+                    color=variant.get("color", "")
+                    size=variant.get("size", "")
+                    stock=variant.get("stock", 0)
+                    price=product["default_variant"].get("retail_price", 0)
+
+                    print('/nVariant: ',color, size, stock, price)
+
                     Variant.objects.create(
                     product=p,
                     name = f"{color}-{size}".strip(),
-                    attributes = stock,
-                    price=product.get("retail_price", 0)
+                    price=price/100,
+                    attributes={
+                        "color": color,
+                        "size": size,
+                        "stock": stock
+                    }
                 )
                 created_count += 1
 
