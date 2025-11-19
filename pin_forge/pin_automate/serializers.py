@@ -30,12 +30,10 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 # STORE
 # ----------------------------------------
 class StoreSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-
     class Meta:
         model = Store
         fields = "__all__"
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["user", "connected", "created_at", "updated_at"]
 
 
 # ----------------------------------------
