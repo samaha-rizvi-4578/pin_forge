@@ -72,6 +72,7 @@ class VariantWriteSerializer(serializers.ModelSerializer):
             "price",
             "image",
             "attributes",
+            "status",
         ]
         extra_kwargs = {
             "id": {"read_only": False, "required": False},
