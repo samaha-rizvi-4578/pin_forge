@@ -273,10 +273,16 @@ class ProductViewSet(viewsets.ModelViewSet):
                 description=product.get("description", "")
                 url = store.url + product.get("path", "")
                 main_image=product.get("image", "")
+                product_id = product.get("id")
                 print('/n',created_count, title, description)
+                
+                # if exist then skip
+                if Product.objects.filter(product_id = product_id).exists():
+                    print("skiping existing product", product_id)
+                    continue
                 p = Product.objects.create(
                     title=title,
-                    product_id = product.get("id"),
+                    product_id = product_id,
                     description=description,
                     store = store,
                     url = url,
@@ -290,8 +296,10 @@ class ProductViewSet(viewsets.ModelViewSet):
                 price=product["default_variant"].get("retail_price", 0)
                 variants = self.generateVariants(colors, sizes, price/100)
                 for variant in variants:
-                    
-                    print('/nVariant: ',variant)
+                    # skip if variant exist
+                    if Variant.objects.filter(product = p, variant_id = variant["variant_id"]).exists():
+                        print("skipping exisitng variants: ", variant["variant_id"])
+                        continue
 
                     Variant.objects.create(
                     product=p,
@@ -303,3 +311,14 @@ class ProductViewSet(viewsets.ModelViewSet):
                 created_count += 1
 
             return Response({"message": f"{created_count} products imported successfully"})
+
+
+# 
+                    # print('/nVariant: ',variant)
+                    # flag = Variant.objects.get(
+                    # product_id = product.get("id")
+                    # variant_id
+                    # )
+                    # if (empty(flag)){
+                    # continue;
+                    # }
