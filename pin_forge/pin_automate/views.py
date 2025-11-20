@@ -199,6 +199,53 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
     # -----------------------------------------------------
+    # extract variants 
+    # -----------------------------------------------------
+    def extractOptions(self, product):
+        colors = []
+        sizes = []
+
+        for option in product.get("options", []):
+            if option.get("type") == "color":
+                for item in option.get("items", []):
+                    colors.append({
+                        "id": item.get("id"),
+                        "label": item.get("label"),
+                        "hex": item.get("values", [None])[0]
+                    })
+
+            if option.get("type") == "size":
+                for item in option.get("items", []):
+                    sizes.append({
+                        "id": item.get("id"),
+                        "label": item.get("label")
+                    })
+
+        return colors, sizes
+
+    # -----------------------------------------------------
+    # generate variants from mextracted variants
+    # -----------------------------------------------------
+
+    def generateVariants(self, colors, sizes, price):
+        variants = []
+
+        for color in colors:
+            for size in sizes:
+                variants.append({
+                    "name": f"{color['label']}-{size['label']}",
+                    "variant_id": f"{color['id']}-{size['id']}",
+                    "price": price,
+                    "attributes": {
+                        "color": color.get("label"),
+                        "hex": color.get("hex"),
+                        "size": size.get("label")
+                    }
+                })
+
+        return variants
+
+    # -----------------------------------------------------
     # STORE PRODUCTS FROM JSON API
     # -----------------------------------------------------
     @action(detail=False, methods=["get", "post"], url_path="storeProductfromJson")
@@ -237,24 +284,21 @@ class ProductViewSet(viewsets.ModelViewSet):
                     status = "new"
                 )
 
-                variants = product.get("variants") or product.get("options") or []
+                #  ok for varainsts => colro and size will be list of dicts so taht we can concatenate them for each different variant 
+                # extract colors and sizes
+                colors, sizes = self.extractOptions(product)
+                price=product["default_variant"].get("retail_price", 0)
+                variants = self.generateVariants(colors, sizes, price/100)
                 for variant in variants:
-                    color=variant.get("color", "")
-                    size=variant.get("size", "")
-                    stock=variant.get("stock", 0)
-                    price=product["default_variant"].get("retail_price", 0)
-
-                    print('/nVariant: ',color, size, stock, price)
+                    
+                    print('/nVariant: ',variant)
 
                     Variant.objects.create(
                     product=p,
-                    name = f"{color}-{size}".strip(),
-                    price=price/100,
-                    attributes={
-                        "color": color,
-                        "size": size,
-                        "stock": stock
-                    }
+                    variant_id = variant["variant_id"],
+                    name = variant["name"],
+                    price=variant["price"],
+                    attributes= variant["attributes"]
                 )
                 created_count += 1
 
