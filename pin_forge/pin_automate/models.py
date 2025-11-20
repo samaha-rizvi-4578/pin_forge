@@ -38,6 +38,7 @@ class Variant(models.Model):
 
     image = models.URLField(null=True, blank=True)
     attributes = models.JSONField(default=dict)  # color, size, etc.
+    status = models.CharField(max_length=100, default="new")  # draft, active, archived
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
