@@ -306,7 +306,8 @@ class ProductViewSet(viewsets.ModelViewSet):
                     variant_id = variant["variant_id"],
                     name = variant["name"],
                     price=variant["price"],
-                    attributes= variant["attributes"]
+                    attributes= variant["attributes"],
+                    status = "new"
                 )
                 created_count += 1
 
