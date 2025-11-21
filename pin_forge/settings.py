@@ -29,7 +29,7 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'localhost:8000','127.0.0.1', 'pin-forge-rho.vercel.app']
+ALLOWED_HOSTS = ['localhost', 'localhost:8000','127.0.0.1', 'https://pin-forge-rho.vercel.app/']
 
 
 # Application definition
