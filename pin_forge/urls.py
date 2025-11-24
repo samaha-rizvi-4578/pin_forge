@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.schemas import get_schema_view
 path('api/', include('pin_forge.pin_automate.urls')),
 from pin_forge.pin_automate.views import (
-    UserViewSet, GroupViewSet, StoreViewSet, ProductViewSet, LoginView
+    UserViewSet, GroupViewSet, StoreViewSet, ProductViewSet, LoginView, PinTemplateViewSet, GeneratedPinViewSet, pinterest_auth_callback, pinterest_auth_start
 )
 
 # include_docs_urls requires `coreapi` to be installed; create docs view
@@ -35,6 +35,8 @@ router.register(r'users', UserViewSet)
 router.register(r'groups', GroupViewSet)
 router.register(r'stores', StoreViewSet)
 router.register(r'products', ProductViewSet)
+router.register(r'pintemplates', PinTemplateViewSet)
+router.register(r'generatedpins', GeneratedPinViewSet)
 
 urlpatterns = [
     # Django admin
@@ -43,6 +45,8 @@ urlpatterns = [
     # Login endpoint
     path('api/login/', LoginView.as_view(), name='login'),
 
+    path("api/pinterest/start/", pinterest_auth_start, name="pinterest_start"),
+    path("api/pinterest/callback/", pinterest_auth_callback, name="pinterest_callback"),
     # Other endpoints
     path('api/', include(router.urls)),
 
