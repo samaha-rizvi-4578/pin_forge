@@ -66,13 +66,11 @@ class PinTemplate(models.Model):
 
 
 class GeneratedPin(models.Model):
-    variant = models.ForeignKey(Variant, on_delete=models.CASCADE, related_name="generated_pins")
     pin_template = models.ForeignKey(PinTemplate, on_delete=models.SET_NULL, null=True, blank=True)
 
     final_image = models.URLField()
     title = models.CharField(max_length=500)
     description = models.TextField()
-
     board = models.CharField(max_length=255, null=True, blank=True)  # Pinterest board ID
 
     status = models.CharField(
@@ -100,13 +98,13 @@ class GeneratedPin(models.Model):
 
 
 class PinterestAuth(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pinterest_auth")
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
     access_token = models.TextField()
     refresh_token = models.TextField(null=True, blank=True)
+    scope = models.TextField(null=True, blank=True)
     expires_at = models.DateTimeField(null=True, blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Pinterest Auth - {self.user.username}"
