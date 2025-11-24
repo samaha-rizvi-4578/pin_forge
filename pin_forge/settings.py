@@ -26,10 +26,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-+e@oj_rzn0h2(e6s^49^7(1^7!rkjomd0)^k-w0i$efp^ercqk'
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+PINTEREST_ACCESS_TOKEN = os.getenv("PINTEREST_ACCESS_TOKEN")
+PINTEREST_APP_ID = os.getenv("PINTEREST_APP_ID")
+PINTEREST_APP_SECRET = os.getenv("PINTEREST_APP_SECRET")
+PINTEREST_REDIRECT_URI = os.getenv("PINTEREST_REDIRECT_URI")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'localhost:8000','127.0.0.1', 'https://pin-forge-rho.vercel.app/']
+ALLOWED_HOSTS = ['localhost', 'localhost:8000','127.0.0.1', 'sphery-confraternal-jaquelyn.ngrok-free.dev', 'localhost:3535']
 
 
 # Application definition
